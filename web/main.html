@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Física</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <img src="logo-uees.png" alt="Logo UEES" class="logo">
+        <h1>Simulador de Física</h1>
+        <h2>Proyecto de Fisica I</h2>
+        <p class="creadores">Creadores: <strong>Ulises Daniel Salinas Chacon</strong>, <strong>Daniel Alejandro Hernandez Bonilla</strong>, <strong>Christian Javier Lopez Morales</strong> y <strong>Jostyn Fernando Iraheta Gálvez</strong></p>  
+    </header>
+    <main>
+        <div class="option" id="palancas">
+            <img src="palancas.gif" alt="Gif de palancas" class="gif">
+            <span class="text">Palancas</span>
+        </div>
+        <div class="option" id="poleas">
+            <img src="poleas.gif" alt="Gif de poleas" class="gif">
+            <span class="text">Poleas</span>
+        </div>
+        <div class="option" id="ondas">
+            <img src="ondas.gif" alt="Gif de ondas" class="gif">
+            <span class="text">Ondas</span>
+        </div>
+    </main>
+    <section id="simulador"></section>
+        <div id="palancas-simulator" class="simulator" style="display: none;">
+            <!-- Aquí se cargará el simulador de palancas -->
+            <iframe src="palancas_simulator.html" width="100%" height="600px"></iframe>
+        </div>
+        <div id="poleas-simulator" class="simulator" style="display: none;">
+            <!-- Aquí se cargará el simulador de poleas -->
+            <iframe src="poleas_simulator.html" width="100%" height="600px"></iframe>
+        </div>
+        <div id="ondas-simulator" class="simulator" style="display: none;">
+            <!-- Aquí se cargará el simulador de ondas -->
+            <iframe src="ondas_simulator.html" width="100%" height="600px"></iframe>
+        </div>
+    </section>
+    <script src="app.js"></script>
+</body>
+</html>
