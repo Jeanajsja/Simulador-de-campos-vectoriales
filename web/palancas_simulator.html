@@ -1,0 +1,26 @@
+<!-- palancas_simulator.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Palancas</title>
+</head>
+<body>
+    <canvas id="simuladorPalancas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('simuladorPalancas');
+        const ctx = canvas.getContext('2d');
+        // Aquí va el código específico del simulador de palancas
+        // Dibuja un triángulo para representar la base
+        ctx.beginPath();
+        ctx.moveTo(400, 550);
+        ctx.lineTo(350, 600);
+        ctx.lineTo(450, 600);
+        ctx.closePath();
+        ctx.fillStyle = 'black';
+        ctx.fill();
+    </script>
+</body>
+</html>
