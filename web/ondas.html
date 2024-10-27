@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Ondas</title>
+    <link rel="stylesheet" href="style_ondas.css"> <!-- Enlace al archivo CSS -->
+</head>
+<body>
+    <div class="container">
+        <h1>Simulador de Ondas</h1>
+        <canvas id="waveCanvas" width="800" height="400"></canvas>
+        <div class="controls">
+            <label for="amplitudeInput">Amplitud:</label>
+            <input type="range" id="amplitudeInput" min="0" max="100" value="25">
+            <span id="amplitudeValue">25</span>
+            
+            <label for="frequencyInput">Frecuencia:</label>
+            <input type="range" id="frequencyInput" min="0" max="100" value="1">
+            <span id="frequencyValue">1</span>
+            
+            <label for="lengthInput">Longitud:</label>
+            <input type="range" id="lengthInput" min="100" max="1200" value="800">
+            <span id="lengthValue">800</span>
+            
+            <label for="speedInput">Velocidad:</label>
+            <input type="range" id="speedInput" min="0" max="1" step="0.01" value="0.1">
+            <span id="speedValue">0.1</span>
+            
+            <button id="resetButton">Reiniciar</button>
+            <select id="presetSelect">
+                <option value="radio">Radio</option>
+                <option value="microwave">Microondas</option>
+                <option value="infrared">Infrarrojo</option>
+                <option value="visible">Visible</option>
+                <option value="ultraviolet">Ultravioleta</option>
+                <option value="gamma">Gamma</option>
+            </select>
+            <button id="presetButton">Aplicar Preset</button>
+        </div>
+        <div class="time-display">
+            <p>Tiempo: <span id="timeDisplay">0.00</span></p>
+        </div>
+    </div>
+    <script src="/scripts/ondas.js"></script> <!-- Enlace al archivo JavaScript -->
+</body>
+</html>
