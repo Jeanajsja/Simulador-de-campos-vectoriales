@@ -14,11 +14,29 @@ header {
     position: relative;
 }
 
-.logo {
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-top: 1px solid #ccc;
+    position: relative;
+}
+
+.logo.izquierdo {
     position: absolute;
     left: 10px;
     top: 10px;
-    height: 150px; /* Ajusta el tamaño del logo según sea necesario */
+    height: 100px; /* Ajusta el tamaño del logo según sea necesario */
+    width: auto;
+}
+
+.logo.derecho {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    height: 100px; /* Ajusta el tamaño del logo según sea necesario */
     width: auto;
 }
 
@@ -28,6 +46,12 @@ h1 {
 
 .creadores {
     margin-top: 10px;
+    font-style: italic;
+}
+
+.creditos {
+    position: absolute;
+    margin-top: 50px; /* Ajusta la posición según sea necesario */
     font-style: italic;
 }
 

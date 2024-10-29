@@ -28,4 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             event.stopPropagation(); // Evitar que el clic se propague al documento
         });
     });
+    document.getElementById("redireccion").addEventListener("click", function(){
+        window.open("https://arcade.makecode.com/S15608-31297-19786-45041", "_blank");
+    })
 });

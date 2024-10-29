@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oscilador Armónico</title>
+    <style>
+        /* Colores y estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #formula, #position, #warning {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        #formula {
+            margin-bottom: 20px;
+        }
+
+        /* Estilos para el canvas */
+        canvas {
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            background-color: #ffffff;
+            margin: 20px auto;
+        }
+
+        /* Contenedor y estilos de los controles */
+        #controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        #inputT, #inputSpeed, #inputAmplitude {
+            width: 60px;
+            padding: 5px;
+            text-align: center;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+            background-color: #007bff;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        #warning {
+            color: #d9534f;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+    <!-- Fórmula y controles de simulación -->
+    <div id="formula">
+        <p>$$y(t) = y_m \sin(\omega t) = y_m \sin\left(\frac{2\pi}{T} t\right)$$</p>
+        <p>Amplitud \(y_m\) = <span id="amplitud">100</span> m, Período \(T\) = <span id="periodo">30</span> s</p>
+    </div>
+    <div id="controls">
+        <label for="inputT">Período \(T\) (10-1000 s):</label>
+        <input type="number" id="inputT" value="30" min="10" max="1000" />
+        <button class="button" onclick="validateAndUpdatePeriod()">Actualizar</button>
+        <label for="inputSpeed">Velocidad:</label>
+        <input type="number" id="inputSpeed" value="0.1" min="0.1" step="0.1" />
+        <button class="button" onclick="updateSpeed()">Actualizar Velocidad</button>
+        <label for="inputAmplitude">Amplitud:</label>
+        <input type="number" id="inputAmplitude" value="100" min="10" max="1000" />
+        <button class="button" onclick="updateAmplitude()">Actualizar Amplitud</button>
+        <button class="button" onclick="pauseAnimation()">Pausar</button>
+        <button class="button" onclick="resetAnimation()">Reiniciar</button>
+    </div>
+    <div id="warning"></div>
+    <div id="position">
+        Posición \(y\) = <span id="currentY">0</span> m
+    </div>
+
+    <!-- Canvas para el simulador -->
+    <canvas id="oscillator" width="800" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('oscillator');
+        const ctx = canvas.getContext('2d');
+
+        let A = 100; // Amplitud en píxeles
+        let T = 30; // Período inicial en segundos
+        let omega = (2 * Math.PI) / T; // Frecuencia angular en rad/s
+        let t = 0; // Tiempo en segundos
+        let waveSpeed = 0.1; // Velocidad de avance de la onda
+        let animationId; // Variable para almacenar la ID de la animación
+        let isPaused = false; // Estado de pausa
+        let updateCounter = 0; // Contador para control de actualización de y
+
+        function drawOscillator() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar el canvas
+
+            // Dibujar la línea de tiempo con degradado
+            const gradient = ctx.createLinearGradient(0, canvas.height / 2, canvas.width, canvas.height / 2);
+            gradient.addColorStop(0, '#ddd');
+            gradient.addColorStop(1, '#bbb');
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height / 2);
+            ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Dibujar la oscilación
+            ctx.beginPath();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#007bff'; // Color de la onda
+            for (let x = 0; x < t; x++) {
+                const y = canvas.height / 2 + A * Math.sin(omega * (x - t));
+                ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Actualizar el valor de y en pantalla cada 15 fotogramas
+            if (updateCounter % 25 === 0) {
+                const currentY = canvas.height / 2 + A * Math.sin(omega * t);
+                document.getElementById('currentY').textContent = Math.round(currentY - canvas.height / 2); 
+            }
+            updateCounter++;
+        }
+
+        function animate() {
+            if (!isPaused) {
+                drawOscillator();
+                t += waveSpeed; // Incrementar el tiempo para mover la oscilación
+            }
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function validateAndUpdatePeriod() {
+            const inputT = document.getElementById('inputT').value;
+            const warning = document.getElementById('warning');
+
+            if (!Number.isInteger(+inputT) || inputT < 10 || inputT > 1000) {
+                warning.textContent = "Por favor, introduce un valor entero entre 10 y 1000.";
+            } else {
+                T = parseInt(inputT); // Obtener el valor de T del input
+                omega = (2 * Math.PI) / T; // Actualizar omega
+                document.getElementById('periodo').textContent = T; // Actualizar el valor en pantalla
+                warning.textContent = ""; // Limpiar el mensaje de advertencia
+                resetAnimation(); // Reiniciar la animación con el nuevo periodo
+            }
+        }
+
+        function updateSpeed() {
+            const inputSpeed = document.getElementById('inputSpeed').value;
+            waveSpeed = parseFloat(inputSpeed); // Actualizar la velocidad de la onda
+        }
+
+        function updateAmplitude() {
+            const inputAmplitude = document.getElementById('inputAmplitude').value;
+            if (inputAmplitude < 10 || inputAmplitude > 199) {
+                document.getElementById('warning').textContent = "Por favor, introduce un valor de amplitud entre 10 y 199.";
+            } else {
+                A = parseInt(inputAmplitude); // Actualizar la amplitud
+                document.getElementById('amplitud').textContent = A; // Actualizar el valor en pantalla
+                document.getElementById('warning').textContent = ""; // Limpiar el mensaje de advertencia
+                resetAnimation(); // Reiniciar la animación con la nueva amplitud
+            }
+        }
+
+        function pauseAnimation() {
+            isPaused = !isPaused;
+            document.querySelector("button[onclick='pauseAnimation()']").textContent = isPaused ? "Reanudar" : "Pausar";
+        }
+
+        function resetAnimation() {
+            t = 0;
+            isPaused = false;
+            document.querySelector("button[onclick='pauseAnimation()']").textContent = "Pausar";
+            cancelAnimationFrame(animationId);
+            animate();
+        }
+
+        animate();
+    </script>
+</body>
+</html>
