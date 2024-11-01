@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Poleas</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            background-color: #e9ecef; /* Color de fondo más suave */
+        }
+        #canvasContainer {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            transition: transform 0.5s; /* Animación suave para el desplazamiento */
+        }
+        canvas {
+            border: 1px solid black;
+            background-color: #f0f0f0;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        #controls {
+            background-color: #ffffff; /* Fondo blanco para resaltar los controles */
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin: 20px 0;
+        }
+        .large-text {
+            font-size: 1.5em;
+            color: #333; /* Texto más oscuro para mejor legibilidad */
+        }
+        #forceDisplay {
+            font-size: 1.5em;
+            text-align: center;
+            margin-top: 10px;
+        }
+        #theory {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+            flex: 1; /* Toma el espacio restante */
+            margin-left: 20px; /* Espacio entre el canvas y la teoría */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Simulador de Poleas</h1>
+        <div id="controls">
+            <label for="weight" class="large-text">Peso de la carga (kg): </label>
+            <input type="range" id="weight" value="10" min="1" max="100" oninput="updateWeightText()">
+            <span id="weightValue" class="large-text">10 kg</span>
+            <br>
+            <label for="gravity" class="large-text">Gravedad (m/s²): </label>
+            <select id="gravity" onchange="updateGravity()">
+                <option value="9.81">Tierra</option>
+                <option value="3.71">Marte</option>
+                <option value="1.62">Luna</option>
+                <option value="24.79">Júpiter</option>
+                <option value="274">Sol</option>
+            </select>
+            <span id="gravityValue" class="large-text">9.81 m/s²</span>
+            <br>
+            <button class="btn btn-primary" onclick="updateSimulation()">Actualizar</button>
+            <button class="btn btn-secondary" onclick="resetSimulation()">Reiniciar</button>
+        </div>
+        <div id="canvasContainer">
+            <canvas id="pulleyCanvas" width="400" height="400"></canvas>
+            <div id="theory">
+                <h5>Teoría sobre Poleas</h5>
+                <p>
+                    Las poleas son herramientas que permiten cambiar la dirección de la fuerza aplicada. Al usar una polea, se puede levantar una carga con menos esfuerzo, dependiendo del sistema de poleas utilizado. La fuerza necesaria para levantar un objeto se calcula utilizando la fórmula:
+                </p>
+                <p><center>\(F = m \cdot g\)</center></p>
+                <p>Donde, \(F\) es la Fuerza necesaria para subir la carga</p>
+                <p>\(m\) es la masa de la carga</p>
+                <p>\(g\) es la gravedad</p>
+                <p>
+                    En este simulador, puedes ajustar la masa de la carga y observar cómo cambia la fuerza necesaria para levantarla. La visualización muestra la carga, la polea y la fuerza que se aplica para moverla.
+                </p>
+            </div>
+        </div>
+        <div id="forceDisplay">Fuerza: 98.10 N</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('pulleyCanvas');
+        const ctx = canvas.getContext('2d');
+        let weight = parseInt(document.getElementById('weight').value);
+        const pulleyRadius = 30;
+        let loadPosition = 200;
+        let animationFrame;
+        let gravity = parseFloat(document.getElementById('gravity').value);
+
+        function updateWeightText() {
+            weight = parseInt(document.getElementById('weight').value);
+            document.getElementById('weightValue').textContent = weight + ' kg';
+            updateForceDisplay(); // Actualiza la visualización de la fuerza
+        }
+
+        function updateGravity() {
+            gravity = parseFloat(document.getElementById('gravity').value);
+            document.getElementById('gravityValue').textContent = gravity + ' m/s²';
+            updateForceDisplay(); // Actualiza la visualización de la fuerza
+        }
+
+        function updateForceDisplay() {
+            const force = weight * gravity;
+            document.getElementById('forceDisplay').textContent = `Fuerza: ${force.toFixed(2)} N`;
+            return force; // Devuelve la fuerza para usarla en la animación
+        }
+
+        function drawPulley() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Dibuja la cuerda
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, pulleyRadius);
+    ctx.lineTo(canvas.width / 2, pulleyRadius + loadPosition);
+    ctx.stroke();
+
+    // Dibuja la carga
+    ctx.fillStyle = '#ff4d4d';
+    ctx.fillRect(canvas.width / 2 - 15, pulleyRadius + loadPosition, 30, 30);
+    ctx.strokeRect(canvas.width / 2 - 15, pulleyRadius + loadPosition, 30, 30);
+
+    // Dibuja la polea encima de la cuerda
+    ctx.fillStyle = '#999';
+    ctx.beginPath();
+    ctx.arc(canvas.width / 2, pulleyRadius, pulleyRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Dibuja el peso con un tamaño fijo
+    ctx.fillStyle = 'black';
+    ctx.font = '20px Arial';
+    ctx.fillText(`Peso: ${weight} kg`, canvas.width / 2 + 50, pulleyRadius + loadPosition + 15);
+
+    // Dibuja la flecha que representa la fuerza
+    const force = updateForceDisplay(); // Obtener la fuerza actual
+    const staticArrowLength = 50; // Longitud fija de la flecha
+
+    // Si la gravedad es del Sol, usa una longitud fija para la flecha
+    if (gravity === 274) {
+        arrowLength = 20; // Longitud fija de la flecha
+    } else {
+        arrowLength = Math.max(20, force / 5); // Ajusta la longitud de la flecha según la fuerza
+    }
+    
+    ctx.strokeStyle = 'blue';
+    ctx.fillStyle = 'blue';
+
+    // Dibuja la línea de la flecha
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2 + 40, pulleyRadius + loadPosition); // Base de la flecha al lado de la carga
+    ctx.lineTo(canvas.width / 2 + 40, pulleyRadius + loadPosition - staticArrowLength); // Punta de la flecha
+    ctx.stroke();
+
+    // Dibuja la cabeza de la flecha
+    const arrowHeadSize = 5;
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2 + 40 - arrowHeadSize, pulleyRadius + loadPosition - staticArrowLength);
+    ctx.lineTo(canvas.width / 2 + 40, pulleyRadius + loadPosition - staticArrowLength - arrowHeadSize);
+    ctx.lineTo(canvas.width / 2 + 40 + arrowHeadSize, pulleyRadius + loadPosition - staticArrowLength);
+    ctx.fill();
+}
+
+
+        function animateLoad() {
+            const force = updateForceDisplay(); // Obtener la fuerza actual
+            
+            // Si la gravedad es del Sol, no mover la carga
+            if (gravity === 274) {
+                loadPosition = 200; // Mantener la carga en la posición original
+                drawPulley();
+                return; // Salir de la función
+            }
+
+            const stopPosition = pulleyRadius;
+            let speed = Math.max(2, 10 - (force / 10)); // Ajusta la velocidad según la fuerza
+
+            if (loadPosition > stopPosition) {
+                loadPosition -= speed; // Velocidad de descenso ajustada
+                drawPulley();
+                animationFrame = requestAnimationFrame(animateLoad);
+            } else {
+                // Detiene la animación al llegar al fondo
+                cancelAnimationFrame(animationFrame);
+            }
+        }
+
+        function updateSimulation() {
+            cancelAnimationFrame(animationFrame); // Detiene la animación anterior
+            loadPosition = 200; // Reinicia la posición de la carga
+            animateLoad(); // Inicia una nueva animación
+        }
+
+        function resetSimulation() {
+            cancelAnimationFrame(animationFrame); // Detiene la animación
+            weight = 10;
+            gravity = 9.81;
+            document.getElementById('weight').value = weight;
+            document.getElementById('gravity').value = gravity;
+            document.getElementById('weightValue').textContent = weight + ' kg';
+            document.getElementById('gravityValue').textContent = gravity + ' m/s²';
+            loadPosition = 200;
+            updateForceDisplay(); // Actualiza la visualización de la fuerza
+            drawPulley(); // Dibuja la polea en su posición inicial
+        }
+
+        // Inicializa la visualización de fuerza
+        updateForceDisplay();
+        drawPulley();
+        MathJax.typeset(); // Renderiza la ecuación de LaTeX
+    </script>
+</body>
+</html>
